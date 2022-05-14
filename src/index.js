@@ -1,19 +1,18 @@
-const cookieParser = require("cookie-parser")
+const cors = require("cors")
 const express = require("express")
 const mongoose = require("mongoose")
-const cors = require("cors")
-require("dotenv").config()
-const app = express()
-app.use(cookieParser())
-app.use(cors())
+const cookieParser = require("cookie-parser")
 
 const routes = require("./router")
+require("dotenv").config()
 
-app.use(express.urlencoded({ extended: false }))
+const app = express()
 
+app.use(cookieParser())
+app.use(cors())
 app.use(express.json())
-
 routes.init(app)
+
 const start = async () => {
     try {
         mongoose.connect(`mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`, {

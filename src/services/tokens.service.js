@@ -6,10 +6,7 @@ class TokenService {
         const accessToken = jsonwebtoken.sign(payload, process.env.JWT_ACCESS_TOKEN, { expiresIn: "15m" })
         const refreshToken = jsonwebtoken.sign(payload, process.env.JWT_REFRESH_TOKEN, { expiresIn: "30d" })
 
-        return {
-            accessToken,
-            refreshToken,
-        }
+        return { accessToken, refreshToken }
     }
 
     async saveToken(userId, refreshToken) {
@@ -20,11 +17,32 @@ class TokenService {
             return tokenData.save()
         }
 
-        const token = await tokensModel.create({ user: userId, refreshToken })
-        return token
+        return await tokensModel.create({ user: userId, refreshToken })
     }
-    async updateToken() {}
-    async getUser() {}
+
+    async logout(refreshToken) {
+        return await tokensModel.deleteOne({ refreshToken })
+    }
+
+    async findRefreshToken(refreshToken) {
+        return await tokensModel.findOne({ refreshToken })
+    }
+
+    validateAccessToken(token) {
+        try {
+            return jsonwebtoken.verify(token, process.env.JWT_ACCESS_TOKEN)
+        } catch (error) {
+            return null
+        }
+    }
+
+    validateRefreshToken(refreshToken) {
+        try {
+            return jsonwebtoken.verify(refreshToken, process.env.JWT_REFRESH_TOKEN)
+        } catch (error) {
+            return null
+        }
+    }
 }
 
 module.exports = new TokenService()
